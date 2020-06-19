@@ -1,11 +1,3 @@
-<!--
-{
-	"title": "C++ 相关资源列表",
-	"href": "http://www.idioms.cc/page/cpp-resources-list.html",
-	"date": "2018-07-19"
-}
--->
-
 ### C++ 相关资源列表
 
 C++ 标准委员会:

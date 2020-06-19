@@ -1,22 +1,14 @@
-<!--
-{
-	"title": "C++11表达式求值顺序",
-	"href": "http://www.idioms.cc/page/evaluation-order.html",
-	"date": "2018-09-30"
-}
--->
-
 # C++11表达式求值顺序
 
 ### 求值(Evaluation)
 
 C++11中, "求值(Evaluation)"的概念被作为术语定义于[1.9/12]:
 
-> *Evaluation of an expression (or a sub-expression) in general includes both value computations (including determining the identity of an object for glvalue evaluation and fetching a value previously assigned to an object for prvalue evaluation) and initiation of _side effects_*
+*Evaluation of an expression (or a sub-expression) in general includes both value computations (including determining the identity of an object for glvalue evaluation and fetching a value previously assigned to an object for prvalue evaluation) and initiation of _side effects_*
 
 同时这段定义中提到的"副作用(side effects)", 同样被作为术语被定义于[1.9/12]:
 
-> *Accessing an object designated by a volatile glvalue (3.10), modifying an object, calling a library I/O function, or calling a function that does any of those operations are all _side effects_, which are changes in the state of the execution environment.*
+*Accessing an object designated by a volatile glvalue (3.10), modifying an object, calling a library I/O function, or calling a function that does any of those operations are all _side effects_, which are changes in the state of the execution environment.*
 
 根据定义, 对表达式"求值"行为通常包括值计算和产生副作用这两个过程, 因此, "求值顺序"的含义也在此基础上被明确为表达式求值行为中的值计算与副作用产生的顺序.
 

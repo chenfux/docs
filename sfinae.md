@@ -1,11 +1,3 @@
-<!--
-{
-	"title": "SFINAE(Substitution Failure Is Not An Error) 替换失败不是错误",
-	"href": "http://www.idioms.cc/page/sfinae.html",
-	"date": "2018-10-20"
-}
--->
-
 # SFINAE(Substitution Failure Is Not An Error) 替换失败不是错误
 
 > 除特别说明, 全文默认依据 ISO C++ 11 标准. 工作草案[N3337](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3337.pdf)包含ISO C++11标准和一些修改.
