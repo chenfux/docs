@@ -10,7 +10,7 @@ C++11中, "求值(Evaluation)"的概念被作为术语定义于[1.9/12]:
 
 *Accessing an object designated by a volatile glvalue (3.10), modifying an object, calling a library I/O function, or calling a function that does any of those operations are all _side effects_, which are changes in the state of the execution environment.*
 
-根据定义, 对表达式"求值"行为通常包括值计算和产生副作用这两个过程, 因此, "求值顺序"的含义也在此基础上被明确为表达式求值行为中的值计算与副作用产生的顺序.
+根据定义, 对表达式"求值"行为通常包括值计算和产生副作用这两个过程, 因此, "求值顺序"的含义也在此基础上可以被认为是表达式求值行为中的值计算与副作用产生的顺序.
 
 ### 优先级(precedence) & 结合性(associativity)
 
