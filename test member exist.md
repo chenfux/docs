@@ -3,6 +3,8 @@
 有时, 识别类中是否存在某个特定名称的类型成员, 成员函数, 数据成员都可能被作为对类型特化处理的条件,
 但是目前C++标准库并没有直接提供能够识别这些信息的traits. 作为补充, 这里演示多种实现, 但本质上全都依赖于[SFINAE(Substitution Failure Is Not An Error)](https://github.com/chenfux/docs/blob/master/sfinae.md)原则.
 
+> 除特别说明, 全文默认依据 ISO C++ 11 标准. 工作草案[N3337](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3337.pdf)包含ISO C++11标准和一些修改.
+
 ### SFINAE原则
 
 [这个文档](https://github.com/chenfux/docs/blob/master/sfinae.md)详细描述了`SFINAE`原则的起源, 使用和原理, 这里不再详述. 
@@ -11,7 +13,6 @@
 
 以"检测类T是否存在一个名为`walk`并且类型为`void(T::*)()`的成员函数"为例, 演示各种实现.
 
-> 除特别说明, 全文默认依据 ISO C++ 11 标准. 工作草案[N3337](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3337.pdf)包含ISO C++11标准和一些修改.
 
 ---
 
