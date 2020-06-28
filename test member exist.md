@@ -1,13 +1,11 @@
 # 根据名称检测类成员是否存在
 
 有时, 识别类中是否存在某个特定名称的类型成员, 成员函数, 数据成员都可能被作为对类型特化处理的条件,
-但是目前C++标准库并没有直接提供能够识别这些信息的traits. 作为补充, 这里演示多种实现, 但本质上全都依赖于[SFINAE(Substitution Failure Is Not An Error)]原则(/page/sfinae.md).
+但是目前C++标准库并没有直接提供能够识别这些信息的traits. 作为补充, 这里演示多种实现, 但本质上全都依赖于[SFINAE(Substitution Failure Is Not An Error)](https://github.com/chenfux/docs/blob/master/sfinae.md)原则.
 
 ### SFINAE原则
 
-http://www.idioms.cc/page/sfinae.html
-
-详细描述了SFINAE原则的起源, 使用和原理, 这里不再详述. 
+[这个文档](https://github.com/chenfux/docs/blob/master/sfinae.md)详细描述了`SFINAE`原则的起源, 使用和原理, 这里不再详述. 
 
 ### 根据名称检测成员函数是否存在
 
