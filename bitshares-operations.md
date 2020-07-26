@@ -35,7 +35,7 @@ struct transfer_operation : public base_operation
 };
 ```
 
-`transfer_operation` 操作类是一个转账交易, 所以字段中包含了几个信息是 `from` 转账人, `to` 转账目标, `amount` 转账的资产类型和数量, 以及 `memo` 附加信息. 类似的, 其他的操作也都具有一些各自的业务相关字段,这里就不一一列出。由于每个操作都具有不同的类型这一事实, 为了能对这些不同的类型实施统一的处理和传递, Bitshares专门定义了一个 `operation` 类型
+`transfer_operation` 操作类是一个转账交易, 所以字段中包含了几个信息是 `from` 转账人, `to` 转账目标, `amount` 转账的资产类型和数量, 以及 `memo` 附加信息. 类似的, 其他的操作也都具有一些各自的业务相关字段,这里就不一一列出。但是由于每个操作都具有不同的类型, 为了能对这些不同的类型实施统一的处理和传递, Bitshares专门定义了一个 `operation` 类型
 
 ```cpp
 //bitshares-core/libraries/protocol/include/graphene/protocol/operations.hpp
@@ -64,11 +64,11 @@ typedef fc::static_variant<
     > operation;
 ```
 
-其中 `fc::static_variant` 是作者封装的一个类似于C++17的 `std::variant` 的类模板, 特点是在任意时刻只能存储一个在模板参数列表中列出的类型的值。而在这个定义中, 所有Bitshares支持的操作类都被作为了 `fc::static_variant` 的模板参数列表, 因此一个 `operation` 对象在运行时总是存储着一个任意的操作类对象, 所以只要能以某种规则从 `operation` 对象中识别出这个操作类对象, 就可以与所有的这些操作类对象构成一种动态多态, 从而一致化的处理所有的操作类对象.
+其中 `fc::static_variant` 是作者封装的一个类似于C++17的 `std::variant` 的类模板, 特点是在任意时刻只能存储一个在模板参数列表中列出的类型的值。而在这个定义中, 所有Bitshares支持的操作类都被作为了 `fc::static_variant` 的模板参数列表, 因此一个 `operation` 对象在运行时可以存储任何一个被支持的操作类对象, 所以只要能以某种规则从 `operation` 对象中识别出它是哪种操作的对象, 就可以与所有的这些操作类对象构成一种动态多态, 从而达到一致化的处理所有的操作类对象的目的.
 
 ## 求值器
 
-在Bitshares的设计中, 操作与相应的业务处理代码是分离定义的, 也就是说, 每一个操作必然有一段相应的业务处理代码定义在其他的地方, 只有当一个操作的业务处理代码被执行, 才算真正的完成一个操作。 所以, 既然Bitshares中所有的操作都是预设的, 同样, 对每种操作的业务处理代码也都是预设的, 每一种操作都有一个对应的业务处理类, 这些类的名字都以 `_evaluator` 结尾, 后续称它们为"求值器"或"求值器类"。这些类所定义的源文件的文件名大都以 `_evaluator` 结尾, 例如:
+在Bitshares的设计中, 操作与相应的业务处理代码是分离定义的, 也就是说, 每一个操作必然有一段相应的业务处理代码定义在其他的地方, 只有当一个操作的业务处理代码被执行, 才算真正的完成一个操作。 这些业务处理代码都实现在各个业务处理类中, 每一种操作都有一个对应的业务处理类, 这些类的名字都以 `_evaluator` 结尾, 后续称它们为"求值器"或"求值器类"。这些类所定义的源文件的文件名大都以 `_evaluator` 结尾, 例如:
 
 + bitshares-core/libraries/chain/account_evaluator.cpp
 + bitshares-core/libraries/chain/asset_evaluator.cpp
@@ -102,9 +102,9 @@ public:
 // ...
 ```
 
-所有预设的操作类都有一个与之对应的求值器类, 例如, 账户创建的操作 `account_create_operation` 就有一个对应的求值器 `account_create_evaluator`. 每个求值器类中都有两个方法 `do_evaluate` 和 `do_apply`, 这两个方法就是这个类所对应的操作的业务逻辑, 也可以说是这个操作的"处理函数", 账户创建操作的求值器 `account_create_evaluator` 里边的这两个方法就是实现 `account_create_operation` 这个操作的业务逻辑, 即: 在Bitshares链上创建一个账户.
+所有预设的操作类都有一个与之对应的求值器类, 例如, 账户创建的操作 `account_create_operation` 对应的求值器是`account_create_evaluator`. 每个求值器类中都有两个方法 `do_evaluate` 和 `do_apply`, 这两个方法就是这个类所对应的操作的业务逻辑, 也可以说是这个操作的"处理函数", 账户创建操作的求值器 `account_create_evaluator` 里边的这两个方法就是实现 `account_create_operation` 这个操作的业务逻辑, 即: 在Bitshares链上创建一个账户.
 
-在这个求值器类的定义中, 每个求值器类还有一个基类是自身类型的 `evaluator` 实例, 例如 `account_create_evaluator` 继承自 `evaluator<account_create_evaluator>`, 其实这样做的目的是为了使所有的执行器都具有相同的调用入口, 从而能够一致化的调用每个执行器。下面是 `evaluator` 类模板的定义, 接下来看它是如何做到这一点的.
+在这个求值器类的定义中, 每个求值器类还有一个基类是自身类型的 `evaluator` 实例, 例如 `account_create_evaluator` 继承自 `evaluator<account_create_evaluator>`, 其实这样做的目的是为了使所有的执行器都具有相同的调用入口, 从而可以以一致化的调用每个执行器。下面是 `evaluator` 类模板的定义, 接下来看它是如何做到这一点的.
 
 ```cpp
 ///bitshares-core/libraries/chain/include/graphene/chain/evaluator.hpp
@@ -166,13 +166,13 @@ operation_result generic_evaluator::start_evaluate(transaction_evaluation_state 
 
 2. 然后 `evaluator` 中的 `apply` 方法和 `execute` 又是由它的基类 `generic_evaluator` 中的 `start_evaluate` 方法来调用的。
 
-所以这里得出一个结论是, 对每个求值器的真正调用入口是 `start_evaluate` 这个方法。这个设计是一种[模板方法模式(Template method pattern)](https://en.wikipedia.org/wiki/Template_method_pattern)的实现, 来做到对不同求值器实现一致化的处理。 
+所以这里得出一个结论是, 对每个求值器的真正调用入口是 `start_evaluate` 这个方法。这个设计是一种[模板方法模式(Template method pattern)](https://en.wikipedia.org/wiki/Template_method_pattern)的实现, 就是用它来对不同求值器实现一致化的调用。 
 
-总的来说操作和求值器的关系是: 操作定义了一个功能, 求值器实现了这个功能, 而所有的操作以及相应的求值器共同定义了Bitshares的所有功能(上层业务逻辑)。
+到这里明确一下操作和求值器的关系是: 操作定义了一个功能, 求值器实现了这个功能的逻辑。因此, 所有的操作以及相应的求值器共同定义了Bitshares的所有功能(上层业务逻辑)。
 
 ## 操作(operation)关联到相应的求值器(evaluator)
 
-从实现方式上来说, Bitshares的做法是将每个操作和相应的求值器构建成键值对, 当后续处理每个操作的时候, 就可以将操作为"键"来找到相应的"值". 这个构建过程起始于`database::initialize_evaluators`方法:
+从实现方式上来说, Bitshares将每个操作和相应的求值器构建成键值对, 当在处理每个操作的时候, 就可以将操作作为"键"来找到相应的"值"(求值器). 这个构建过程起始于`database::initialize_evaluators`方法:
 
 ```cpp
 ///bitshares-core/libraries/chain/db_init.cpp
@@ -200,16 +200,16 @@ vector< unique_ptr<op_evaluator> > _operation_evaluators;
 
 可以看到这个键值对的本质就是一个数组. 所以它的键就是数组的索引, 它的值就是这个数组的元素类型 `unique_ptr<op_evaluator>`. 构建过程首先是在 `initialize_evaluators` 方法中为所有的求值器类型都调用了 `register_evaluator`, 每一次调用都会产生一条键值对, 调用的同时通过模板参数将被注册的求值器类型传递过去。 另一边 `register_evaluator` 的模板形参 `EvaluatorType` 就是那些被注册的求值器类型, 比如 `account_create_evaluator`, `account_update_evaluator` ...
 
-接下来逐步拆分这个键值对的构成, 首先来看这个键值对中的键, 也就是下标:
+接下来拆分这个键值对的构成, 首先来看这个键值对中的键, 也就是下标:
 
 ```cpp
 operation::tag<typename EvaluatorType::operation_type>::value
 ```
 
 其中 `EvaluatorType` 就是每次调用 `register_evaluator` 时传递的求值器类,
-所以 `typename EvaluatorType::operation_type` 的意思就是引用求值器类型中的一个名为`operation_type`的类型成员. 然后根据代码[1.2]可以发现, 每个求值器类确实都有一个`operation_type`, 这个类型就是这个求值器类所关联到的操作(operation)。
+所以 `typename EvaluatorType::operation_type` 的意思就是引用求值器类型中的一个名为`operation_type`的类型成员. 回归上面`account_create_evaluator`的代码可以发现, 每个求值器类确实都有一个`operation_type`, 这个类型就是这个求值器类所关联到的操作(operation)。
 
-在下面的例子中, `typename S::value_type` 就类似于 `typename EvaluatorType::operation_type`.
+在下面的例子中 `typename S::value_type` 就类似于 `typename EvaluatorType::operation_type`.
 
 ```cpp
 #include <type_traits>
@@ -229,7 +229,7 @@ int main()
 }
 ```
 
-再来看 `operation::tag<T>::value` 这一部分, 根据类型 `operation` 的定义
+再来看 `operation::tag<T>::value` 这一部分, 根据前面引用的代码中对 `operation` 类型定义:
 
 ```cpp
 typedef fc::static_variant<transfer_operation, ...> operation;
@@ -238,13 +238,13 @@ typedef fc::static_variant<transfer_operation, ...> operation;
 换种写法就是
 
 ```cpp
-fc::static_variant<transfer_operation, ...>::tag<T>::value;
+fc::static_variant<transfer_operation, ...>::template tag<T>::value;
 ```
 
-> 注: 上面两段代码中的 "..." 是省略号, 表示所有的操作(operations), 不是模板参数包.
+> 注: 上面两段代码中的 "..." 是省略号, 表示所有的操作类(operations), 不是模板参数包.
 
 
-这个表达式的意思是类型`T`位于`static_variant`的模板参数列表中的位置, 例如 `fc::static_variant<A, B, C, D, E>::tag<C>::value` 的结果为 `2`
+这个表达式的意思是计算"类型`T`位于`static_variant`的模板参数列表中的位置", 例如 `fc::static_variant<A, B, C, D, E>::template tag<C>::value` 的结果为 `2`
 
 那么`operation::tag<typename EvaluatorType::operation_type>::value` 的意思就是: 先把求值器类中关联的操作类型`operation_type` 找出来, 然后再从`static_variant` 中把该操作类型位于所有的操作类型的索引找出来, 就以这个索引作为键值对的key.
 
@@ -343,9 +343,10 @@ main()
 }
 ```
 
-接下来跟踪这个键值对中的值的构成, 也就是 `new op_evaluator_impl<EvaluatorType>()` 这个表达式, 其中`op_evaluator_impl` 定义在 [evaluator.hpp]()
+接下来跟踪这个键值对中的值的构成, 也就是 `new op_evaluator_impl<EvaluatorType>()` 这个表达式
 
 ```cpp
+///bitshares-core/libraries/chain/include/graphene/chain/evaluator.hpp
 class op_evaluator
 {
 public:
@@ -367,13 +368,13 @@ public:
 };
 ```
 
-从代码中可知, `op_evaluator_impl::evaluate` 构造了一个执行器对象`eval`(T就是执行器的类型), 并调用它的 `start_evaluate`方法. 前面说过, start_evaluate 方法又会调用 `evaluate` 方法, `evaluate`方法又会调用`do_evaluate`方法。 所以`new op_evaluator_impl<EvaluatorType>()`这个表达式就是构造了一个可以调用`EvaluatorType::start_evaluate`方法的对象。 由于`op_evaluator_impl`的每个实例都是不同的类型, 比如op_evaluator_impl<account_create_evaluator> 和op_evaluator_impl<account_update_evaluator> 就是完全不同的类型, 所以这里使用基类型`op_evaluator`作为键值对中的值。
+从代码中可知, `op_evaluator_impl::evaluate` 构造了一个执行器对象`eval`(T就是执行器的类型), 并调用它的 `start_evaluate`方法. 前面说过, `start_evaluate` 方法又会调用 `evaluate` 方法, `evaluate`方法又会调用`do_evaluate`方法。 所以`new op_evaluator_impl<EvaluatorType>()`这个表达式就是构造了一个可以调用`EvaluatorType::start_evaluate`方法的对象。 由于`op_evaluator_impl`的每个实例都是不同的类型, 比如`op_evaluator_impl<account_create_evaluator>` 和 `op_evaluator_impl<account_update_evaluator>` 就是完全不同的类型, 所以这里借助多态性, 使用基类型 `op_evaluator` 作为键值对中的值.
 
 
-到这里操作与其求职器的关联就完成了。 接下来看一下如何查找和调用求值器的。
-这段代码位于 [db_block.cpp]
+到这里操作与其求值器的关联就建立完成了。 接下来看一下如何查找和调用求值器的。
 
 ```cpp
+//bitshares-core/libraries/chain/db_block.cpp
 operation_result database::apply_operation(transaction_evaluation_state &eval_state, const operation &op)
 {
     try
