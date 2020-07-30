@@ -119,6 +119,8 @@ struct has_member_function_walk
 
 ### 扩展
 
++ ISO C++ 11/ 14.8.2 + 14.8.3/1 + 14.8.2/7 + 14.8.2/8 
+
  + http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n1978.pdf [2.6 Decltype and SFINAE]
  + https://msdn.microsoft.com/zh-cn/library/s016dfe8.aspx
  + https://en.cppreference.com/w/cpp/language/overload_resolution
